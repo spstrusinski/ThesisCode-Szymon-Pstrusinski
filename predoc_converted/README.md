@@ -22,5 +22,5 @@ Some scripts contain local file paths and may require updating paths to match yo
 Due to file size constraints, raw data are not included in this repository.
 
 
-Data access and additional information are available upon request — please contact szymonpstrusinski@gmail.com
+Data access and additional information are available upon request: please contact szymonpstrusinski@gmail.com
 
