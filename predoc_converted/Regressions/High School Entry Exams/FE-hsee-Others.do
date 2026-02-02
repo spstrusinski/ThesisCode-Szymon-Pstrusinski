@@ -25,7 +25,7 @@ collapse (mean) PolishAverage MathAverage EnglishAverage ///
 xtset powiat_id T
 
 
-* 4. FE regressions – full sample
+* 4. Fixed Effects regressions – full sample
 
 
 * Math
