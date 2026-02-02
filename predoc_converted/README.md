@@ -19,3 +19,8 @@ This repository contains code used in my thesis project on Polish exam outcomes 
 ## How to use
 Scripts are organized by function in the existing folders (DataCleaning, Summary Statistics, Regressions, Graphs).
 Some scripts contain local file paths and may require updating paths to match your local setup.
+Due to file size constraints, raw data are not included in this repository.
+
+
+Data access and additional information are available upon request — please contact szymonpstrusinski@gmail.com
+
