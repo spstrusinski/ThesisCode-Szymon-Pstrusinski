@@ -1,50 +1,85 @@
-* 2.  Generate dummies
-gen byte SchoolTypeB = (SchoolType=="Gymasium")
-gen byte Urban      = (gmina_class=="urban")
+clear all
+set more off
+version 16
+* 1. Load data
+import excel using "C:\Users\Pstrrr...ICYK\Desktop\Teza\SzymonPstrusiński-Codes", firstrow clear
 
-* 3.  Make sure T and powiat_special are set
+
+* 2. Key indicators
+* Gymnasium indicator
+gen byte SchoolTypeB = (SchoolType == "Gymasium")
+
+* Urban gmina indicator
+gen byte Urban = (gmina_class == "urban")
+
+
+* 3. Panel construction
+
 encode powiat_special, gen(powiat_id)
-collapse (mean) PolishAverage MathAverage EnglishAverage PolishTestTakers Urban SchoolTypeB, by(powiat_id T)
+
+* Collapse to powiat-year means
+collapse (mean) PolishAverage MathAverage EnglishAverage ///
+                PolishTestTakers Urban SchoolTypeB, ///
+         by(powiat_id T)
 
 xtset powiat_id T
 
-xtreg MathAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store MM1
-xtreg MathAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store MM2
-xtreg EnglishAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store EM1
-xtreg EnglishAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store EM2
-xtreg PolishAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store PM1
-xtreg PolishAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store PM2
-xtreg PolishTestTakers SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store TM1
-xtreg PolishTestTakers c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store TM2
+
+* 4. FE regressions – full sample
+
+
+* Math
+xtreg MathAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store MM1
+xtreg MathAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store MM2
+
+* English
+xtreg EnglishAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store EM1
+xtreg EnglishAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store EM2
+
+* Polish
+xtreg PolishAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store PM1
+xtreg PolishAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store PM2
+
+* Test takers
+xtreg PolishTestTakers SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store TM1
+xtreg PolishTestTakers c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store TM2
 
 estimates table MM1 MM2 EM1 EM2 PM1 PM2 TM1 TM2, stats(N) se p
 
 
-*Now, no COVID
+* 5. Robustness check: exclude COVID years
 
-drop if T>=7 & T<=9
+preserve
+drop if T >= 7 & T <= 9
 
-xtreg MathAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store MM1
-xtreg MathAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store MM2
-xtreg EnglishAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store EM1
-xtreg EnglishAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store EM2
-xtreg PolishAverage SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store PM1
-xtreg PolishAverage c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store PM2
-xtreg PolishTestTakers SchoolTypeB i.T, fe robust cluster(powiat_id)
-estimates store TM1
-xtreg PolishTestTakers c.SchoolTypeB##c.Urban i.T, fe robust cluster(powiat_id)
-estimates store TM2
+* Repeat FE specifications
+xtreg MathAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store MM1_nc
+xtreg MathAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store MM2_nc
+
+xtreg EnglishAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store EM1_nc
+xtreg EnglishAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store EM2_nc
+
+xtreg PolishAverage SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store PM1_nc
+xtreg PolishAverage c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store PM2_nc
+
+xtreg PolishTestTakers SchoolTypeB i.T, fe vce(cluster powiat_id)
+est store TM1_nc
+xtreg PolishTestTakers c.SchoolTypeB##c.Urban i.T, fe vce(cluster powiat_id)
+est store TM2_nc
+
+estimates table MM1_nc MM2_nc EM1_nc EM2_nc PM1_nc PM2_nc TM1_nc TM2_nc, stats(N) se p
+restore
